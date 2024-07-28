@@ -250,7 +250,7 @@ module "gke" {
   }
 }
 
-resource "helm_release" "nginx_ingress" {
+resource "helm_release" "trino" {
   name       = "trino-helm"
 
   repository = "https://trinodb.github.io/charts"
