@@ -18,6 +18,26 @@
   Provider configuration
  *****************************************/
  
+/**
+ * Copyright 2018 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/******************************************
+  Provider configuration
+ *****************************************/
+ 
 provider "google" {
   credentials = var.gcp_credentials
   project     = var.project_id
@@ -48,11 +68,13 @@ locals {
   cluster_type = "node-pool"
 }
 
+
 data "google_client_config" "default" {}
 
 module "project-services" {
   source  = "terraform-google-modules/project-factory/google//modules/project_services"
   version = "~> 15.0"
+  depends_on = [time_sleep.wait_for_services]
 
   project_id                  = var.project_id
   enable_apis                 = true
@@ -92,6 +114,11 @@ module "project-services" {
   ]
 }
 
+resource "time_sleep" "wait_for_services" {
+
+  create_duration = "240s"
+}
+
 module "network" {
   source  = "terraform-google-modules/network/google"
   version = "~> 9.1"
@@ -99,7 +126,7 @@ module "network" {
   network_name = var.network_name
   subnets = [
     {
-      subnet_name   = "${var.network_name}-${var.region}-a"
+      subnet_name   = "${var.environment}-${var.region}-a"
       subnet_ip     = "10.0.1.0/24"
       subnet_region = var.region
     },
@@ -137,6 +164,7 @@ module "project-factory" {
 module "gke" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-public-cluster"
   version = "~> 31.0"
+  depends_on = [time_sleep.wait_for_services]
 
   project_id                        = module.project-factory.project_id
   name                              = "${local.cluster_type}-cluster${var.cluster_name_suffix}"
@@ -156,7 +184,7 @@ module "gke" {
       name            = "pool-01"
       min_count       = 1
       max_count       = 2
-      service_account = "terraform@happybase-dev.iam.gserviceaccount.com"
+      service_account = "terraform@root-project-430810.iam.gserviceaccount.com"
       auto_upgrade    = true
     },
     {
@@ -170,7 +198,7 @@ module "gke" {
       accelerator_count = 1
       accelerator_type  = "nvidia-tesla-p4"
       auto_repair       = false
-      service_account   = "terraform@happybase-dev.iam.gserviceaccount.com"
+      service_account   = "terraform@root-project-430810.iam.gserviceaccount.com"
     },
     {
       name                      = "pool-03"
@@ -180,7 +208,7 @@ module "gke" {
       node_count                = 2
       disk_type                 = "pd-standard"
       auto_upgrade              = true
-      service_account           = "terraform@happybase-dev.iam.gserviceaccount.com"
+      service_account           = "terraform@root-project-430810.iam.gserviceaccount.com"
       pod_range                 = "test"
       sandbox_enabled           = true
       cpu_manager_policy        = "static"
@@ -191,7 +219,7 @@ module "gke" {
     {
       name                = "pool-04"
       min_count           = 0
-      service_account     = "terraform@happybase-dev.iam.gserviceaccount.com"
+      service_account     = "terraform@root-project-430810.iam.gserviceaccount.com"
       queued_provisioning = true
     },
   ]

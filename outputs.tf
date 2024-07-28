@@ -15,12 +15,13 @@ output "kubernetes_endpoint" {
 }
 
 output "client_token" {
+  value     = try(base64encode(data.google_client_config.default.access_token), null)
   sensitive = true
-  value     = base64encode(data.google_client_config.default.access_token)
 }
 
 output "ca_certificate" {
   value = module.gke.ca_certificate
+  sensitive = true
 }
 
 output "service_account" {
