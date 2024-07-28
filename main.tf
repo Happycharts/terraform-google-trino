@@ -126,17 +126,17 @@ module "network" {
   network_name = var.network_name
   subnets = [
     {
-      subnet_name   = "${var.environment}-${var.region}-a"
+      subnet_name   = "${var.network_name}-${var.environment}-${var.region}-a"
       subnet_ip     = "10.0.1.0/24"
       subnet_region = var.region
     },
     {
-      subnet_name   = "${var.environment}-${var.region}-b"
+      subnet_name   = "${var.network_name}-${var.environment}-${var.region}-b"
       subnet_ip     = "10.0.2.0/24"
       subnet_region = var.region
     },
     {
-      subnet_name   = "${var.environment}-${var.region}-c"
+      subnet_name   = "${var.network_name}-${var.environment}-${var.region}-c"
       subnet_ip     = "10.0.3.0/24"
       subnet_region = var.region
     }
